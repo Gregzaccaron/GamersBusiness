@@ -9,7 +9,8 @@ public record PageResponse<T>(List<T> items, int page, int size, long totalEleme
     public PageResponse {
         items = List.copyOf(items);
     }
-    public static <S, T> PageResponse<T> from(PageResult<S> result, Function<? super S, ? extends T> mapper) {
+
+    public static <S, T> PageResponse<T> from(PageResult<S> result, Function<S, T> mapper) {
         return new PageResponse<>(
                 result.items().stream().map(mapper).toList(),
                 result.page(),

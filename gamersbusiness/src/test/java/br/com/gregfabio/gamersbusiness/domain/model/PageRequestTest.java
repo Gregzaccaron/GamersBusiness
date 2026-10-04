@@ -12,8 +12,12 @@ import br.com.gregfabio.gamersbusiness.domain.error.DomainException;
 class PageRequestTest {
     @Test
     void acceptsTheInclusivePageSizeBoundaries() {
-        assertEquals(new PageRequest(0, 1), new PageRequest(0, 1));
-        assertEquals(new PageRequest(3, 100), new PageRequest(3, 100));
+        PageRequest minimum = new PageRequest(0, 1);
+        PageRequest maximum = new PageRequest(3, 100);
+        assertEquals(0, minimum.page());
+        assertEquals(1, minimum.size());
+        assertEquals(3, maximum.page());
+        assertEquals(100, maximum.size());
     }
 
     @Test

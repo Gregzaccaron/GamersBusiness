@@ -3,7 +3,7 @@
 - [x] 1.1 Ajustar `pom.xml` para Spring Boot 3.x e Java 17 ou superior e adicionar JPA, PostgreSQL, Flyway, Validation, springdoc, OAuth2 Resource Server/JWT e dependências de teste necessárias.
 - [x] 1.2 Criar os pacotes Clean Architecture `domain`, `application`, `infrastructure` e `presentation` sob o package base existente, com configuração externa por variáveis de ambiente.
 - [x] 1.3 Configurar PostgreSQL/Flyway e Hibernate sem geração automática de schema (`ddl-auto=validate`), incluindo configuração de data/hora e segredos externos.
-- [ ] 1.4 Criar migration inicial para as nove tabelas do diagrama, FKs sem cascata sobre histórico, restrições de unicidade para aquisições ativas/avaliações/desbloqueios, verificações de valores e índices; validar banco vazio via Flyway.
+- [x] 1.4 Criar migration inicial para as nove tabelas do diagrama, FKs sem cascata sobre histórico, restrições de unicidade para aquisições ativas/avaliações/desbloqueios, verificações de valores e índices; validar banco vazio via Flyway.
 - [x] 1.5 Implementar modelos de domínio, portas de repositório, exceções de domínio e casos de uso sem dependência de Spring Data/JPA.
 - [x] 1.6 Implementar entidades JPA, repositories/adapters e mapeamentos explícitos entre domínio e persistência, mantendo entidades dentro da infraestrutura.
 
@@ -39,6 +39,6 @@
 - [x] 6.1 Criar `Dockerfile` multi-stage da API, `.dockerignore` e `.env.example` somente com placeholders; ignorar `.env` e nunca versionar segredos.
 - [x] 6.2 Criar `compose.yaml` usando `postgres:17`, healthcheck, volume persistente e serviço API no perfil `local` dependente do banco saudável, configurados por variáveis de ambiente.
 - [x] 6.3 Implementar bootstrap ADMIN somente no perfil `local` e com ativação explícita; exigir nome/e-mail/senha externos, usar BCrypt, não atualizar senha em reinícios e falhar em configuração incompleta, colisões ou ativação fora do perfil local sem promover USER.
-- [ ] 6.4 Criar testes unitários e de integração com `postgres:17` via Testcontainers cobrindo Flyway, contrato 400/404/409, filtros/paginação, JWT de conta excluída/perda de papel, docs locais, bootstrap idempotente, posse, histórico após remoção/readquisição e unicidade.
+- [x] 6.4 Criar testes unitários e de integração com `postgres:17` via Testcontainers cobrindo Flyway, contrato 400/404/409, filtros/paginação, JWT de conta excluída/perda de papel, docs locais, bootstrap idempotente, posse, histórico após remoção/readquisição e unicidade.
 - [x] 6.5 Atualizar README com arquitetura, variáveis, perfil local/exceção Swagger, comandos Docker/Maven, PostgreSQL 17, migrations, bootstrap ADMIN seguro e exemplos do contrato HTTP.
 - [ ] 6.6 Executar testes/build, subir a aplicação e o PostgreSQL com Docker Compose e exercitar Swagger, cadastro/login, fluxo admin de catálogo, aquisição, remoção/readquisição, avaliação e desbloqueio via API.

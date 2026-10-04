@@ -3,6 +3,7 @@ package br.com.gregfabio.gamersbusiness.infrastructure.persistence.adapter;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -159,7 +160,8 @@ public class CatalogPersistenceAdapter implements CatalogRepositoryPort {
 
     @Override
     public PageResult<Game> findGames(PageRequest page, String title, Long categoryId, Long developerId) {
-        var result = games.search(title, categoryId, developerId, JpaPageMapper.pageable(page));
+        String normalizedTitle = title == null ? "" : title.toLowerCase(Locale.ROOT);
+        var result = games.search(normalizedTitle, categoryId, developerId, JpaPageMapper.pageable(page));
         Map<Long, List<Long>> categoriesByGame = categoryIds(result.getContent());
         return JpaPageMapper.map(result, entity ->
                 toDomain(entity, categoriesByGame.getOrDefault(entity.getId(), List.of())));

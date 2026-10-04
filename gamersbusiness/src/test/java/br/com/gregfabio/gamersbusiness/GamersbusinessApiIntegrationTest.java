@@ -227,7 +227,7 @@ class GamersbusinessApiIntegrationTest {
         assertEquals(201, acquisition.getStatusCode().value());
         JsonNode acquired = json(acquisition);
         long firstEntryId = acquired.path("id").asLong();
-        assertEquals(new BigDecimal("19.99"), new BigDecimal(acquired.path("paidPrice").asText()));
+        assertEquals(0, new BigDecimal("19.99").compareTo(new BigDecimal(acquired.path("paidPrice").asText())));
 
         assertUniformError(api(HttpMethod.POST, "/api/v1/me/library", owner.token(), Map.of("gameId", game)),
                 409, "/api/v1/me/library");
@@ -272,7 +272,7 @@ class GamersbusinessApiIntegrationTest {
         JsonNode reacquisition = json(reacquisitionResponse);
         long secondEntryId = reacquisition.path("id").asLong();
         assertNotEquals(firstEntryId, secondEntryId);
-        assertEquals(new BigDecimal("29.50"), new BigDecimal(reacquisition.path("paidPrice").asText()));
+        assertEquals(0, new BigDecimal("29.50").compareTo(new BigDecimal(reacquisition.path("paidPrice").asText())));
         assertUniformError(api(HttpMethod.POST, "/api/v1/games/" + game + "/reviews", owner.token(),
                 Map.of("rating", 4)), 409, "/api/v1/games/" + game + "/reviews");
         assertUniformError(api(HttpMethod.POST, "/api/v1/me/achievements", owner.token(),
