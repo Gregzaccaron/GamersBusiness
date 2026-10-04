@@ -12,12 +12,12 @@ public interface GameJpaRepository extends JpaRepository<GameEntity, Long> {
     @Query(
             value = "select distinct g from GameEntity g "
                     + "left join GameCategoryEntity gc on gc.id.gameId = g.id "
-                    + "where lower(g.title) like concat('%', :title, '%') "
+                    + "where lower(g.title) like concat('%', :title, '%') escape '!' "
                     + "and (:categoryId is null or gc.id.categoryId = :categoryId) "
                     + "and (:developerId is null or g.developerId = :developerId)",
             countQuery = "select count(distinct g.id) from GameEntity g "
                     + "left join GameCategoryEntity gc on gc.id.gameId = g.id "
-                    + "where lower(g.title) like concat('%', :title, '%') "
+                    + "where lower(g.title) like concat('%', :title, '%') escape '!' "
                     + "and (:categoryId is null or gc.id.categoryId = :categoryId) "
                     + "and (:developerId is null or g.developerId = :developerId)")
     Page<GameEntity> search(

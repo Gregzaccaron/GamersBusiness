@@ -148,6 +148,58 @@ class GamersbusinessApiIntegrationTest {
     }
 
     @Test
+    void unknownRoutesAndUnsupportedRequestsReturnClientErrors() throws Exception {
+        UserSession player = registerAndLogin();
+        assertUniformError(api(HttpMethod.GET, "/api/v1/unknown", player.token(), null),
+                404, "/api/v1/unknown");
+
+        ResponseEntity<String> wrongMethod = api(HttpMethod.PUT, "/api/v1/me", player.token(), Map.of());
+        assertUniformError(wrongMethod, 405, "/api/v1/me");
+        assertTrue(wrongMethod.getHeaders().getAllow().contains(HttpMethod.PATCH));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+        ResponseEntity<String> wrongContentType = client.exchange(
+                "http://localhost:" + port + "/api/v1/auth/login", HttpMethod.POST,
+                new HttpEntity<>("not-json", headers), String.class);
+        assertUniformError(wrongContentType, 415, "/api/v1/auth/login");
+    }
+
+    @Test
+    void overlongPasswordsAreRejectedWithoutChangingTheAccount() throws Exception {
+        String tooLong = "é".repeat(37);
+        assertUniformError(api(HttpMethod.POST, "/api/v1/auth/register", null,
+                Map.of("username", "long-password", "email", "long@example.test", "password", tooLong)),
+                400, "/api/v1/auth/register");
+        assertEquals(0, jdbc.queryForObject("SELECT count(*) FROM usuario", Integer.class));
+
+        UserSession player = registerAndLogin();
+        assertUniformError(api(HttpMethod.POST, "/api/v1/auth/login", null,
+                Map.of("email", player.email(), "password", tooLong)), 401, "/api/v1/auth/login");
+        assertUniformError(api(HttpMethod.PATCH, "/api/v1/me", player.token(),
+                Map.of("currentPassword", player.password(), "newPassword", tooLong)), 400, "/api/v1/me");
+        assertNotNull(login(player.email(), player.password()));
+    }
+
+    @Test
+    void titleSearchTreatsSqlWildcardsAsLiteralCharacters() throws Exception {
+        UserSession admin = createAdmin();
+        long developer = createDeveloper(admin.token(), "Search Studio");
+        long category = createCategory(admin.token(), "Search");
+        long percent = createGame(admin.token(), "100% Fun", developer, List.of(category), "1.00");
+        long underscore = createGame(admin.token(), "Level_One", developer, List.of(category), "1.00");
+        long escape = createGame(admin.token(), "Surprise! Quest", developer, List.of(category), "1.00");
+        createGame(admin.token(), "Ordinary Game", developer, List.of(category), "1.00");
+
+        for (var expected : Map.of("%", percent, "_", underscore, "!", escape).entrySet()) {
+            JsonNode result = json(api(HttpMethod.GET,
+                    "/api/v1/games?title=" + expected.getKey() + "&size=1", admin.token(), null));
+            assertEquals(1, result.path("totalElements").asInt());
+            assertEquals(expected.getValue().longValue(), result.path("items").get(0).path("id").asLong());
+        }
+    }
+
+    @Test
     void catalogFiltersAreCombinedAndStableAndReferencesConflictCorrectly() throws Exception {
         UserSession admin = createAdmin();
         long developerOne = createDeveloper(admin.token(), "Studio One");

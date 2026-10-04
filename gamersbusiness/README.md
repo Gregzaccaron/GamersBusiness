@@ -77,6 +77,24 @@ export DATABASE_PASSWORD="$POSTGRES_PASSWORD"
 
 Alternatively, run a packaged JAR with `./mvnw package` followed by `java -jar target/gamersbusiness-0.0.1-SNAPSHOT.jar`, keeping the same environment variables set. Use `mvn` instead of `./mvnw` if Maven is installed separately. Flyway runs automatically on application startup; Hibernate validates the resulting schema.
 
+## Tests
+
+From this directory, with Java 17 and Docker running:
+
+```sh
+./mvnw verify
+```
+
+This compiles the application, runs unit and HTTP integration tests, and packages the executable JAR. Integration tests start an isolated PostgreSQL 17 container with Testcontainers, apply Flyway migrations, and clean up the container automatically. No `.env`, running Compose stack, or manually created database is needed. The first run needs network access to download Maven dependencies and container images.
+
+To run only the unit tests without Docker:
+
+```sh
+./mvnw -Dtest=PageRequestTest,BCryptPasswordHasherTest test
+```
+
+The suite covers authentication and permissions, catalog filters, pagination, ownership and historical records, local administrator bootstrap, malformed HTTP requests, and BCrypt password byte limits (including accented characters and emoji).
+
 ## Local API documentation
 
 The `local` Spring profile allows unauthenticated access to Swagger UI at <http://localhost:8080/swagger-ui.html> and the OpenAPI document at <http://localhost:8080/v3/api-docs>. This is a documentation-only exception: business routes remain protected, and Swagger's **Authorize** action requires a valid Bearer token for protected operations. Swagger/OpenAPI should be disabled outside the local profile; do not deploy the local profile on a public server.
@@ -86,6 +104,8 @@ The `local` Spring profile allows unauthenticated access to Swagger UI at <http:
 Examples below assume the API is reachable at `http://localhost:8080` and follow the `/api/v1` JSON contract. Replace IDs with IDs returned by your own API. All routes other than registration and login require `Authorization: Bearer <accessToken>`.
 
 ### Register and log in
+
+Passwords must be nonblank and fit within BCrypt's **72 UTF-8 byte** limit. Accented characters and emoji can occupy multiple bytes. The same limit applies to password changes and administrator provisioning. Oversized new passwords return `400`; login attempts with oversized passwords return `401`. Passwords are never silently truncated.
 
 Registration returns a public user profile (never a password or password hash):
 
@@ -138,6 +158,8 @@ curl -i http://localhost:8080/api/v1/achievements \
 
 The numeric IDs above are illustrative: use the IDs returned by the corresponding create responses. Catalog reads, such as `GET /api/v1/games?page=0&size=20`, are available to authenticated users; catalog create/update/delete operations require ADMIN.
 
+The `title` filter performs a case-insensitive substring search. Characters such as `%` and `_` are treated literally, not as SQL wildcards. Encode query parameters when constructing URLs; for example, search for a literal percent sign with `curl --get --data-urlencode 'title=%' -H "Authorization: Bearer $USER_TOKEN" http://localhost:8080/api/v1/games`.
+
 ### Library, review, and personal achievement operations
 
 With the registered player's token, acquire the game, update played hours, post a review, and unlock an achievement for a game currently in the player's library:
@@ -175,3 +197,7 @@ curl -i http://localhost:8080/api/v1/me/library \
 ```
 
 The API derives the acting user from the token. Acquisition is required before posting a review or unlocking an achievement. Collection endpoints use `page` (zero-based, default `0`) and `size` (default `20`, maximum `100`); for example, `GET /api/v1/games/1/reviews?page=0&size=20` returns the page plus the aggregate review count and average. A removed library entry does not erase review or achievement history.
+
+## Error responses
+
+Errors use the JSON fields `timestamp`, `status`, `message`, `path`, and `errors` (field validation details). For authenticated requests, unknown API routes return `404`, unsupported HTTP methods return `405` with an `Allow` header, and unsupported request content types return `415`. Invalid input returns `400`, authentication failures `401`, insufficient permissions `403`, and conflicts with stored records `409`. Unexpected server failures return a generic `500` response and are logged server-side for diagnosis.

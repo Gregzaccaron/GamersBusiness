@@ -160,7 +160,8 @@ public class CatalogPersistenceAdapter implements CatalogRepositoryPort {
 
     @Override
     public PageResult<Game> findGames(PageRequest page, String title, Long categoryId, Long developerId) {
-        String normalizedTitle = title == null ? "" : title.toLowerCase(Locale.ROOT);
+        String normalizedTitle = title == null ? "" : title.toLowerCase(Locale.ROOT)
+                .replace("!", "!!").replace("%", "!%").replace("_", "!_");
         var result = games.search(normalizedTitle, categoryId, developerId, JpaPageMapper.pageable(page));
         Map<Long, List<Long>> categoriesByGame = categoryIds(result.getContent());
         return JpaPageMapper.map(result, entity ->
