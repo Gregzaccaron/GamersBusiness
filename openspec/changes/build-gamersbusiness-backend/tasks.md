@@ -41,4 +41,4 @@
 - [x] 6.3 Implementar bootstrap ADMIN somente no perfil `local` e com ativação explícita; exigir nome/e-mail/senha externos, usar BCrypt, não atualizar senha em reinícios e falhar em configuração incompleta, colisões ou ativação fora do perfil local sem promover USER.
 - [x] 6.4 Criar testes unitários e de integração com `postgres:17` via Testcontainers cobrindo Flyway, contrato 400/404/409, filtros/paginação, JWT de conta excluída/perda de papel, docs locais, bootstrap idempotente, posse, histórico após remoção/readquisição e unicidade.
 - [x] 6.5 Atualizar README com arquitetura, variáveis, perfil local/exceção Swagger, comandos Docker/Maven, PostgreSQL 17, migrations, bootstrap ADMIN seguro e exemplos do contrato HTTP.
-- [ ] 6.6 Executar testes/build, subir a aplicação e o PostgreSQL com Docker Compose e exercitar Swagger, cadastro/login, fluxo admin de catálogo, aquisição, remoção/readquisição, avaliação e desbloqueio via API.
+- [x] 6.6 Executar testes/build, subir a aplicação e o PostgreSQL com Docker Compose e exercitar Swagger, cadastro/login, fluxo admin de catálogo, aquisição, remoção/readquisição, avaliação e desbloqueio via API.
