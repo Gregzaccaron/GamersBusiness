@@ -41,6 +41,15 @@ Copy `.env.example` to `.env` and replace all `CHANGE_ME` values with local-only
 
 At startup, the API receives `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, and `JWT_SECRET`; the Compose file derives the database connection from the variables above. When running through Maven, configure those four names directly. Set `SPRING_PROFILES_ACTIVE=local` to use the local profile.
 
+### Planned OpenAI recommendations (not implemented)
+
+The proposal is tracked in [`add-ai-game-recommendations`](../openspec/changes/add-ai-game-recommendations/proposal.md), with design, requirements and unchecked implementation tasks. It covers up to five explained recommendations after acquisition and an initial generation for existing libraries.
+
+`.env.example` reserves `AI_RECOMMENDATIONS_ENABLED=false`, an empty `OPENAI_API_KEY`, and configurable `OPENAI_MODEL=gpt-5.6-terra`. **The current application and Compose do not consume these variables yet; adding a key does not enable recommendations.** No paid OpenAI request is made by this configuration-only preparation.
+
+When the integration is implemented, put the real key only in the ignored local `.env`, never in `.env.example`, React/Vite variables, source code, screenshots or Git commits. Enabling the flag and supplying a key will allow paid generation for existing nonempty libraries, so configure spending limits in the OpenAI project first.
+
+
 ### Optional local ADMIN bootstrap
 
 Bootstrap is disabled by default. To request a local ADMIN, explicitly set `BOOTSTRAP_ADMIN_ENABLED=true` and provide a unique username, email, and strong password through the three `BOOTSTRAP_ADMIN_*` variables before startup. Do not put a real password in this README or `.env.example`. Bootstrap is local-profile functionality only; it is not a production account-management mechanism. The application must fail startup on incomplete/conflicting bootstrap configuration rather than silently promote an existing USER. Once created, subsequent starts must not replace that account's password.
